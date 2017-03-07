@@ -41,7 +41,7 @@ def get_video_duration(csv_list):
 
 
 # Return list with valid grooming durations for active rat
-def get_grooming_active(csv_list, duration_start, duration_end):
+def get_grooming_active(csv_list, duration_start, duration_end, start_string, end_string):
     active_grooming = []
     for row in csv_list:
         if row[LABEL] == 'Grooming Active':
@@ -49,13 +49,23 @@ def get_grooming_active(csv_list, duration_start, duration_end):
             groom_start = convert_time(groom_start_string)
             groom_end_string = row[END_TIME]
             groom_end = convert_time(groom_end_string)
+
+            # Cut down on intervals that overlap; if grooming before start, but goes past start
+            if groom_start < duration_start and groom_end > duration_start:
+                row[START_TIME] = start_string
+                groom_start = convert_time(start_string)
+
+            # If grooming before end, but goes past end
+            if groom_start < duration_end and groom_end > duration_end:
+                row[END_TIME] = end_string
+                groom_end = convert_time(end_string)
             if groom_start >= duration_start and groom_end <= duration_end:
                 active_grooming.append(row)
     return active_grooming
 
 
 # Return list with valid grooming durations for passive rat
-def get_grooming_passive(csv_list, duration_start, duration_end):
+def get_grooming_passive(csv_list, duration_start, duration_end, start_string, end_string):
     passive_grooming = []
     for row in csv_list:
         if row[LABEL] == 'Grooming Passive':
@@ -63,6 +73,17 @@ def get_grooming_passive(csv_list, duration_start, duration_end):
             groom_start = convert_time(groom_start_string)
             groom_end_string = row[END_TIME]
             groom_end = convert_time(groom_end_string)
+
+            # Cut down on intervals that overlap; if grooming before start, but goes past start
+            if groom_start < duration_start and groom_end > duration_start:
+                row[START_TIME] = start_string
+                groom_start = convert_time(start_string)
+
+            # If grooming before end, but goes past end
+            if groom_start < duration_end and groom_end > duration_end:
+                row[END_TIME] = end_string
+                groom_end = convert_time(end_string)
+
             if groom_start >= duration_start and groom_end <= duration_end:
                 passive_grooming.append(row)
     return passive_grooming
@@ -84,18 +105,18 @@ def main():
     csv_list = load_csv(sys.argv[1])
 
     # Get duration
-    start, end = get_video_duration(csv_list)
+    start_string, end_string = get_video_duration(csv_list)
 
     # Convert times
-    duration_start = convert_time(start)
-    duration_end = convert_time(end)
+    duration_start = convert_time(start_string)
+    duration_end = convert_time(end_string)
 
     # Duration length
     duration = duration_end - duration_start
 
     # Get grooming lists
-    active_grooming_list = get_grooming_active(csv_list, duration_start, duration_end)
-    passive_grooming_list = get_grooming_passive(csv_list, duration_start, duration_end)
+    active_grooming_list = get_grooming_active(csv_list, duration_start, duration_end, start_string, end_string)
+    passive_grooming_list = get_grooming_passive(csv_list, duration_start, duration_end, start_string, end_string)
 
     # Calculate total grooming durations
     total_grooming_duration_active = calculate_total_duration(active_grooming_list)
@@ -107,6 +128,13 @@ def main():
     print("\nGrooming (Active) ratio: \t" + str(ratio_active))
     print("Grooming (Passive) ratio: \t" + str(ratio_passive))
 
+    # Write to log file
+    index = sys.argv[1].find(".csv")
+    saved_filename = sys.argv[1][0:index]
+    saved_file = open(saved_filename + ".txt", "w")
+    saved_file.write("Grooming (Active) ratio: " + str(ratio_active))
+    saved_file.write("\nGrooming (Passive) ratio: " + str(ratio_passive))
+    saved_file.close()
 
 # Run main method
 if __name__ == "__main__":
