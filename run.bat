@@ -1,0 +1,1 @@
+for f in assets/Stage*/*.csv; do python ratio.py $f; done
