@@ -1,6 +1,7 @@
 import sys
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+import numpy as np
 
 
 # Reads in txt file, returns two floats for active and passive ratio
@@ -58,10 +59,12 @@ def main():
         passive_ratios.append(passive_ratio)
 
     # Plot data
-    plt.plot(active_ratios, color='b', label='Active Rat')
-    plt.plot(passive_ratios, color='r', label='Passive Rat')
+    days = range(1, len(txt_files) + 1)
+    plt.plot(days, active_ratios, color='b', label='Active Rat')
+    plt.plot(days, passive_ratios, color='r', label='Passive Rat')
     plt.title('SD' + active_rat + '\nStage ' + stage_num)
     plt.xticks(range(1, len(txt_files), 1))
+    plt.yticks(np.arange(0.0, 1.2, 0.2))
     plt.xlabel('Day')
     plt.ylabel('Grooming Ratio')
     blue_patch = mpatches.Patch(color='blue', label='SD' + active_rat + ' (Active)')
