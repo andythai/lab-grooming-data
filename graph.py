@@ -63,7 +63,7 @@ def main():
     plt.plot(days, active_ratios, color='b', label='Active Rat')
     plt.plot(days, passive_ratios, color='r', label='Passive Rat')
     plt.title('SD' + active_rat + '\nStage ' + stage_num)
-    plt.xticks(range(1, len(txt_files), 1))
+    plt.xticks(range(1, len(txt_files) + 1, 1))
     plt.yticks(np.arange(0.0, 1.2, 0.2))
     plt.xlabel('Day')
     plt.ylabel('Grooming Ratio')
